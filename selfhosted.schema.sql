@@ -5,6 +5,11 @@ create table users(
   user_type text not null default 'regular'
 );
 
+create table sessions(
+  id uuid not null primary key,
+  user uuid not null references users(id)
+);
+
 create table if not exists databases (
   id uuid not null primary key,
   label text not null,

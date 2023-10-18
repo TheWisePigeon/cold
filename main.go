@@ -21,6 +21,11 @@ type User struct {
 	Password string `json:"password" db:"password"`
 }
 
+type Session struct {
+	Id   string `json:"id" db:"id"`
+	User string `json:"user" db:"user"`
+}
+
 func main() {
 	db, err := sqlx.Connect("sqlite3", "./cold.db")
 	_ = db
@@ -56,6 +61,7 @@ func main() {
 					"BadRequest": true,
 				})
 			}
+			println(err.Error())
 			return c.Render("login", fiber.Map{
 				"InternalError": true,
 			})
@@ -73,16 +79,39 @@ func main() {
 			user.Username,
 		)
 		if err != nil {
+			println(err.Error())
 			return c.Render("login", fiber.Map{
 				"InternalError": true,
 			})
 		}
 		cookie := new(fiber.Cookie)
-    cookie.Name = "session_id"
-    cookie.Value = session_id
-    cookie.Path = "/"
-    c.Cookie(cookie)
-    return c.Redirect("/home")
+		cookie.Name = "session_id"
+		cookie.Value = session_id
+		cookie.Path = "/"
+		c.Cookie(cookie)
+		return c.Redirect("/home")
+	})
+
+	app.Get("/home", func(c *fiber.Ctx) error {
+		session_id := c.Cookies("session_id", "")
+		if session_id == "" {
+			return c.Redirect("login")
+		}
+		session := new(Session)
+		err := db.Get(
+			session,
+			"select * from sessions where id=$1",
+			session_id,
+		)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return c.Redirect("/login")
+			}
+      return c.Redirect("/error")
+		}
+		return c.Render("home", fiber.Map{
+			"Username": session.User,
+		})
 	})
 
 	println("Server launched")

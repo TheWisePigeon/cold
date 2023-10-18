@@ -21,3 +21,5 @@
 go.work
 # App binary
 cold
+# Dev database
+dev.cold.db

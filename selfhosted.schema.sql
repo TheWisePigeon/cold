@@ -1,6 +1,5 @@
 create table users(
-  id uuid not null primary key,
-  username text not null unique,
+  username text not null primary key,
   password text not null,
   user_type text not null default 'regular'
 );
@@ -14,14 +13,14 @@ create table if not exists databases (
   id uuid not null primary key,
   label text not null,
   database_variant text not null,
-  owner uuid not null references users(id),
+  owner uuid not null references users(username),
   url text not null
 );
 
 create table if not exists backup_schedules (
   id uuid not null primary key,
   database uuid not null references databases(id),
-  owner uuid not null references users(id),
+  owner uuid not null references users(username),
   frequency text not null,
   active boolean default true,
   created_at timestamp not null

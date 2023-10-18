@@ -61,7 +61,6 @@ func main() {
 					"BadRequest": true,
 				})
 			}
-			println(err.Error())
 			return c.Render("login", fiber.Map{
 				"InternalError": true,
 			})
@@ -79,7 +78,6 @@ func main() {
 			user.Username,
 		)
 		if err != nil {
-			println(err.Error())
 			return c.Render("login", fiber.Map{
 				"InternalError": true,
 			})
@@ -89,7 +87,8 @@ func main() {
 		cookie.Value = session_id
 		cookie.Path = "/"
 		c.Cookie(cookie)
-		return c.Redirect("/home")
+    c.Set("hx-redirect", "/home")
+		return c.Render("/login", fiber.Map{})
 	})
 
 	app.Get("/home", func(c *fiber.Ctx) error {
@@ -107,7 +106,7 @@ func main() {
 			if err == sql.ErrNoRows {
 				return c.Redirect("/login")
 			}
-      return c.Redirect("/error")
+			return c.Redirect("/error")
 		}
 		return c.Render("home", fiber.Map{
 			"Username": session.User,

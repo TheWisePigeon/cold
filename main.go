@@ -19,6 +19,7 @@ type LoginPayload struct {
 type User struct {
 	Username string `json:"username" db:"username"`
 	Password string `json:"password" db:"password"`
+  FirstTimeLoggingIn bool `db:"first_time_logging_in"`
 }
 
 type Session struct {
@@ -91,6 +92,30 @@ func main() {
 		return c.Render("/login", fiber.Map{})
 	})
 
+  app.Get("/logout", func(c *fiber.Ctx) error {
+		session_id := c.Cookies("session_id", "")
+		if session_id == "" {
+			return c.Redirect("login")
+		}
+		session := new(Session)
+		err := db.Get(
+			session,
+			"select * from sessions where id=$1",
+			session_id,
+		)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return c.Redirect("/login")
+			}
+			return c.Redirect("/error")
+		}
+    _, err = db.Exec("delete from sessions where id=$1", session.Id)
+    if err!=nil{
+      return c.Redirect("/error")
+    }
+    return c.Redirect("/login")
+  })
+
 	app.Get("/home", func(c *fiber.Ctx) error {
 		session_id := c.Cookies("session_id", "")
 		if session_id == "" {
@@ -108,6 +133,21 @@ func main() {
 			}
 			return c.Redirect("/error")
 		}
+    current_user := new(User)
+    err = db.Get(
+      current_user,
+      "select * from users where username=$1",
+      session.User,
+    )
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return c.Redirect("/login")
+			}
+			return c.Redirect("/error")
+		}
+    if current_user.FirstTimeLoggingIn {
+      c.Redirect("/config")
+    }
 		return c.Render("home", fiber.Map{
 			"Username": session.User,
       "Location": "Home",

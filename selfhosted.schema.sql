@@ -1,7 +1,8 @@
 create table users(
   username text not null primary key,
   password text not null,
-  user_type text not null default 'regular'
+  user_type text not null default 'regular',
+  first_time_logging_in boolean not null default true
 );
 
 create table sessions(
@@ -38,4 +39,11 @@ create table if not exists backup_logs(
   backup_schedule uuid not null references backup_schedules(id),
   created_at timestamp not null,
   status text not null
+);
+
+create table if not exists gcp_configs(
+  id serial primary key,
+  service_account_key text not null,
+  project_id text not null,
+  bucket_name text not null
 );

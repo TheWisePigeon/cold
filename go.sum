@@ -1,3 +1,5 @@
+cloud.google.com/go v0.110.9 h1:e7ITSqGFFk4rbz/JFIqZh3G4VEHguhAL4BQcFlWtU68=
+cloud.google.com/go v0.110.9/go.mod h1:rpxevX/0Lqvlbc88b7Sc1SPNdyK1riNBTUU6JXhYNpM=
 github.com/andybalholm/brotli v1.0.5 h1:8uQZIdzKmjc/iuPu7O2ioW48L81FgatrcpfFmiq/cCs=
 github.com/andybalholm/brotli v1.0.5/go.mod h1:fO7iG3H7G2nSZ7m0zPUDn85XEX2GTukHGRSepvi9Eig=
 github.com/go-sql-driver/mysql v1.6.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=

@@ -3,6 +3,7 @@ module cold
 go 1.20
 
 require (
+	cloud.google.com/go v0.110.9 // indirect
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/gofiber/fiber/v2 v2.50.0 // indirect
 	github.com/gofiber/template v1.8.2 // indirect

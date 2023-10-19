@@ -1,3 +1,10 @@
-<div>
-  <h1>Welcome to the configs you bozo aaah nigg</h1>
+<html>
+  <title>Cold | Configuration</title>
+</html>
+<div class="flex flex-col gap-3">
+  <h1>Configure different Cold integrations here. Only Google Cloud Storage is supported at the moment.</h1>
+
+  <div>
+    {{ template "partials/integrations/google_cloud" .}}
+  </div>
 </div>

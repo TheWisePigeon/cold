@@ -23,3 +23,5 @@ go.work
 cold
 # Dev database
 dev.cold.db
+# Temp folder used by air
+.tmp/*

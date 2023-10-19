@@ -87,7 +87,7 @@ func main() {
 		cookie.Value = session_id
 		cookie.Path = "/"
 		c.Cookie(cookie)
-    c.Set("hx-redirect", "/home")
+		c.Set("hx-redirect", "/home")
 		return c.Render("/login", fiber.Map{})
 	})
 
@@ -110,7 +110,8 @@ func main() {
 		}
 		return c.Render("home", fiber.Map{
 			"Username": session.User,
-		})
+      "Location": "Home",
+		}, "layout")
 	})
 
 	println("Server launched")

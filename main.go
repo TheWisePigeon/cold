@@ -114,6 +114,28 @@ func main() {
 		}, "layout")
 	})
 
+  app.Get("/config", func(c *fiber.Ctx) error {
+		session_id := c.Cookies("session_id", "")
+		if session_id == "" {
+			return c.Redirect("login")
+		}
+		session := new(Session)
+		err := db.Get(
+			session,
+			"select * from sessions where id=$1",
+			session_id,
+		)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return c.Redirect("/login")
+			}
+			return c.Redirect("/error")
+		}
+    return c.Render("config", fiber.Map{
+      "Location":"Configuration",
+    }, "layout")
+  })
+
 	println("Server launched")
 	err = app.Listen(":8080")
 	if err != nil {

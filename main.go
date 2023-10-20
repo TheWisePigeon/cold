@@ -140,7 +140,7 @@ func main() {
 			}
 			return c.Redirect("/error")
 		}
-    //As only GC Storage is supported at the moment
+		//As only GC Storage is supported at the moment
 		gcp_config := new(GCP_Config)
 		err = db.Get(
 			gcp_config,
@@ -175,10 +175,26 @@ func main() {
 			}
 			return c.Redirect("/error")
 		}
+		//Fetch GCP_config
+		gcp_config := new(GCP_Config)
+		err = db.Get(
+			gcp_config,
+			"select * from gcp_configs where id=1",
+		)
+		if err != nil {
+			if err != sql.ErrNoRows {
+				return c.Redirect("/error")
+			}
+		}
 		return c.Render("settings", fiber.Map{
 			"Location": "Settings",
+      "GCP_Config": gcp_config,
 		}, "layout")
 	})
+
+  app.Get("/error", func(c *fiber.Ctx) error {
+    return c.Render("error", fiber.Map{})
+  })
 
 	println("Server launched")
 	err = app.Listen(":8080")

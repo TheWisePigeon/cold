@@ -25,3 +25,5 @@ cold
 dev.cold.db
 # Temp folder used by air
 tmp/*
+# Test GCP service account key
+backer*

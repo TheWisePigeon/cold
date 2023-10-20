@@ -9,6 +9,9 @@
   </div>
   <form class="flex flex-col gap-2 " hx-target="#gcp_result" hx-post="/api/settings/gcp" enctype="multipart/form-data">
     <div class="border-b space-y-2 border-gray-900/10 pb-12">
+      {{if not .EmptyConfig }}
+        <input type="text" hidden name="gcp_config_id" value="{{.GCP_Config.Id}}">
+      {{end}}
       <div>
         <label for="price" class="block text-sm font-medium leading-6 text-gray-900">Project ID</label>
         <div class="relative mt-2 rounded-md shadow-sm">

@@ -17,15 +17,16 @@ type Session struct {
 }
 
 type GCP_Config struct {
-	Id                int    `json:"id" db:"id"`
-	ServiceAccountKey string `json:"service_account_key" db:"service_account_key"`
-	ProjectId         string `json:"project_id" db:"project_id"`
-	BucketName        string `json:"bucket_name" db:"bucket_name"`
-  LastUpdatedServiceAccount string `json:"last_updated_service_account" db:"last_updated_service_account"`
+	Id                        int    `json:"id" db:"id"`
+	ServiceAccountKey         string `json:"service_account_key" db:"service_account_key"`
+	ProjectId                 string `json:"project_id" db:"project_id"`
+	BucketName                string `json:"bucket_name" db:"bucket_name"`
+	LastUpdatedServiceAccount string `json:"last_updated_service_account" db:"last_updated_service_account"`
 }
 
 type GCPPayload struct {
-	BucketName        string `form:"gcp_bucket_name"`
-	ProjectId         string `form:"gcp_project_id"`
-  UploadedServiceAccountKey string `form:"gcp_service_key_uploaded"`
+	BucketName                string `form:"gcp_bucket_name"`
+	ProjectId                 string `form:"gcp_project_id"`
+	UploadedServiceAccountKey string `form:"gcp_service_key_uploaded"`
+	ConfigId                  string `form:"gcp_config_id"`
 }

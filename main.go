@@ -42,6 +42,7 @@ func main() {
 
 		router.Get("/gcp-key-upload", func(c *fiber.Ctx) error {
 			input_tag := `
+        <input type="text" hidden name="gcp_service_key_uploaded" value="true">
         <div class="mt-2 flex gap-10">
           <input required class="block w-full rounded-md border-0 bg-white p-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" id="file_input" name="gcp_service_key" type="file" />
           <button class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" hx-trigger="click" hx-target="#gcp_key_upload" hx-get="/api/cancel-gcp-key-upload">Cancel</button>

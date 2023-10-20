@@ -182,16 +182,18 @@ func SaveGCPSettings(db *sqlx.DB, c *fiber.Ctx) error {
 	if err != nil {
 		return c.SendString(error_tag)
 	}
-	file, err := c.FormFile("gcp_service_key")
-	if !strings.HasSuffix(file.Filename, ".json") {
-		error_tag = "<p class='text-sm text-red-500'>The service account key must be a JSON file</p>"
-		return c.SendString(error_tag)
-	}
-	err = c.SaveFile(file, "./gcp_service_key.json")
-	if err != nil {
-		println(err.Error())
-		return c.SendString("Something went wrong. Please try again")
-	}
+  if payload.UploadedServiceAccountKey=="true" {
+    file, err := c.FormFile("gcp_service_key")
+    if !strings.HasSuffix(file.Filename, ".json") {
+      error_tag = "<p class='text-sm text-red-500'>The service account key must be a JSON file</p>"
+      return c.SendString(error_tag)
+    }
+    err = c.SaveFile(file, "./gcp_service_key.json")
+    if err != nil {
+      println(err.Error())
+      return c.SendString("Something went wrong. Please try again")
+    }
+  }
 	gcp_config := new(models.GCP_Config)
 	//Because only one GC Storage setting is supported at the moment
 	gcp_config.Id = 1

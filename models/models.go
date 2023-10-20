@@ -26,4 +26,5 @@ type GCP_Config struct {
 type GCPPayload struct {
 	BucketName        string `form:"gcp_bucket_name"`
 	ProjectId         string `form:"gcp_project_id"`
+  UploadedServiceAccountKey string `form:"gcp_service_key_uploaded"`
 }

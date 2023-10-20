@@ -155,6 +155,7 @@ func GotoSettingsPage(db *sqlx.DB, c *fiber.Ctx) error {
 	return c.Render("settings", fiber.Map{
 		"Location":   "Settings",
 		"GCP_Config": gcp_config,
+    "EmptyConfig": err==sql.ErrNoRows,
 	}, "layout")
 }
 

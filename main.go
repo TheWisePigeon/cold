@@ -9,9 +9,9 @@ import (
 )
 
 func main() {
-	db, err := sqlx.Connect("sqlite3", "./cold.db")
+	db, err := sqlx.Connect("sqlite3", "/root/cold.db")
 	_ = db
-	engine := html.New("/home/thewisepigeon/code/cold/views", ".html")
+	engine := html.New("/root/views", ".html")
 	if err != nil {
 		panic(err)
 	}

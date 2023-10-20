@@ -17,14 +17,21 @@ type LoginPayload struct {
 }
 
 type User struct {
-	Username string `json:"username" db:"username"`
-	Password string `json:"password" db:"password"`
-  FirstTimeLoggingIn bool `db:"first_time_logging_in"`
+	Username           string `json:"username" db:"username"`
+	Password           string `json:"password" db:"password"`
+	FirstTimeLoggingIn bool   `db:"first_time_logging_in"`
 }
 
 type Session struct {
 	Id   string `json:"id" db:"id"`
 	User string `json:"user" db:"user"`
+}
+
+type GCP_Config struct {
+	Id                int    `json:"id" db:"id"`
+	ServiceAccountKey string `json:"service_account_key" db:"service_account_key"`
+	ProjectId         string `json:"project_id" db:"project_id"`
+	BucketName        string `json:"bucket_name" db:"bucket_name"`
 }
 
 func main() {
@@ -92,7 +99,7 @@ func main() {
 		return c.Render("/login", fiber.Map{})
 	})
 
-  app.Get("/logout", func(c *fiber.Ctx) error {
+	app.Get("/logout", func(c *fiber.Ctx) error {
 		session_id := c.Cookies("session_id", "")
 		if session_id == "" {
 			return c.Redirect("login")
@@ -109,12 +116,12 @@ func main() {
 			}
 			return c.Redirect("/error")
 		}
-    _, err = db.Exec("delete from sessions where id=$1", session.Id)
-    if err!=nil{
-      return c.Redirect("/error")
-    }
-    return c.Redirect("/login")
-  })
+		_, err = db.Exec("delete from sessions where id=$1", session.Id)
+		if err != nil {
+			return c.Redirect("/error")
+		}
+		return c.Redirect("/login")
+	})
 
 	app.Get("/home", func(c *fiber.Ctx) error {
 		session_id := c.Cookies("session_id", "")
@@ -133,28 +140,25 @@ func main() {
 			}
 			return c.Redirect("/error")
 		}
-    current_user := new(User)
-    err = db.Get(
-      current_user,
-      "select * from users where username=$1",
-      session.User,
-    )
+    //As only GC Storage is supported at the moment
+		gcp_config := new(GCP_Config)
+		err = db.Get(
+			gcp_config,
+			"select * from gcp_configs where id=1",
+		)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return c.Redirect("/login")
+				return c.Redirect("/settings")
 			}
 			return c.Redirect("/error")
 		}
-    if current_user.FirstTimeLoggingIn {
-      c.Redirect("/settings")
-    }
 		return c.Render("home", fiber.Map{
 			"Username": session.User,
-      "Location": "Home",
+			"Location": "Home",
 		}, "layout")
 	})
 
-  app.Get("/settings", func(c *fiber.Ctx) error {
+	app.Get("/settings", func(c *fiber.Ctx) error {
 		session_id := c.Cookies("session_id", "")
 		if session_id == "" {
 			return c.Redirect("login")
@@ -171,10 +175,10 @@ func main() {
 			}
 			return c.Redirect("/error")
 		}
-    return c.Render("settings", fiber.Map{
-      "Location":"Settings",
-    }, "layout")
-  })
+		return c.Render("settings", fiber.Map{
+			"Location": "Settings",
+		}, "layout")
+	})
 
 	println("Server launched")
 	err = app.Listen(":8080")

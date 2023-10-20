@@ -35,14 +35,14 @@ create table if not exists database_backups (
 );
 
 create table if not exists backup_logs(
-  id serial primary key,
+  id integer primary key autoincrement ,
   backup_schedule uuid not null references backup_schedules(id),
   created_at timestamp not null,
   status text not null
 );
 
 create table if not exists gcp_configs(
-  id serial primary key,
+  id integer primary key autoincrement ,
   service_account_key text not null,
   project_id text not null,
   bucket_name text not null

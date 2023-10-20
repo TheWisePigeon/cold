@@ -3,6 +3,8 @@ package handlers
 import (
 	"cold/models"
 	"database/sql"
+	"fmt"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -158,6 +160,8 @@ func GotoSettingsPage(db *sqlx.DB, c *fiber.Ctx) error {
 }
 
 func SaveGCPSettings(db *sqlx.DB, c *fiber.Ctx) error {
+	error_tag := "<p class='text-sm text-red-500'>Something went wrong. Please try again</p>"
+	success_tag := "<p class='text-sm text-green-400'>Settings saved!</p>"
 	session_id := c.Cookies("session_id", "")
 	if session_id == "" {
 		return c.Redirect("login")
@@ -175,26 +179,20 @@ func SaveGCPSettings(db *sqlx.DB, c *fiber.Ctx) error {
 		return c.Redirect("/error")
 	}
 	payload := new(models.GCPPayload)
-  err = c.BodyParser(payload)
-  if err != nil {
-    return c.Render("settings", fiber.Map{
-      "Location":   "Settings",
-      "GCP_Config": payload,
-      "BadRequest": true,
-    })
-  }
+	err = c.BodyParser(payload)
+	if err != nil {
+		return c.SendString(error_tag)
+	}
 	file, err := c.FormFile("gcp_service_key")
+	if !strings.HasSuffix(file.Filename, ".json") {
+		error_tag = "<p class='text-sm text-red-500'>The service account key must be a JSON file</p>"
+		return c.SendString(error_tag)
+	}
+	target_dir := "./tmp"
+	err = c.SaveFile(file, fmt.Sprintf("%s/%s", target_dir, file.Filename))
 	if err != nil {
 		println(err.Error())
-		return c.Render("settings", fiber.Map{
-			"Location":   "Settings",
-			"GCP_Config": payload,
-			"BadRequest": true,
-		})
+		return c.SendString("Something went wrong. Please try again")
 	}
-  println(file.Filename)
-	return c.Render("settings", fiber.Map{
-		"Location":   "Settings",
-		"GCP_Config": payload,
-	})
+	return c.SendString(success_tag)
 }

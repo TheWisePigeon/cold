@@ -7,7 +7,7 @@
     </svg>
     <h1 class="text-md font-semibold">Google Cloud Storage</h1>
   </div>
-  <form class="flex flex-col gap-2 " hx-post="/api/settings/gcp" enctype="multipart/form-data">
+  <form class="flex flex-col gap-2 " hx-target="#gcp_result" hx-post="/api/settings/gcp" enctype="multipart/form-data">
     <div class="border-b space-y-2 border-gray-900/10 pb-12">
       <div>
         <label for="price" class="block text-sm font-medium leading-6 text-gray-900">Project ID</label>
@@ -33,9 +33,7 @@
         <button class="w-full text-center mt-2 p-2 bg-blue-500 hover:bg-blue-400 text-white rounded-md" type="submit">
           <h1>Save</h1>
         </button>
-        {{ if .BadRequest }}
-        <p class="text-sm text-red-500">Something went wrong! Try again</p>
-        {{end}}
+        <div id="gcp_result"></div>
       </div>
     </div>
   </form>

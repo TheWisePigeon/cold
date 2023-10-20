@@ -22,3 +22,8 @@ type GCP_Config struct {
 	ProjectId         string `json:"project_id" db:"project_id"`
 	BucketName        string `json:"bucket_name" db:"bucket_name"`
 }
+
+type GCPPayload struct {
+	BucketName        string `form:"gcp_bucket_name"`
+	ProjectId         string `form:"gcp_project_id"`
+}

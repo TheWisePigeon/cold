@@ -35,10 +35,15 @@ func main() {
     return handlers.GotoSettingsPage(db, c)
 	})
 
-
   app.Route("/api", func(router fiber.Router) {
     router.Post("/login", func(c *fiber.Ctx) error {
       return handlers.Login(db, c)
+    })
+
+    router.Route("/settings", func(router fiber.Router) {
+      router.Post("/gcp", func(c *fiber.Ctx) error {
+        return handlers.SaveGCPSettings(db, c)
+      })
     })
   })
 

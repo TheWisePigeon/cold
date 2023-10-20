@@ -3,6 +3,7 @@ package handlers
 import (
 	"cold/models"
 	"database/sql"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -154,4 +155,46 @@ func GotoSettingsPage(db *sqlx.DB, c *fiber.Ctx) error {
 		"Location":   "Settings",
 		"GCP_Config": gcp_config,
 	}, "layout")
+}
+
+func SaveGCPSettings(db *sqlx.DB, c *fiber.Ctx) error {
+	session_id := c.Cookies("session_id", "")
+	if session_id == "" {
+		return c.Redirect("login")
+	}
+	session := new(models.Session)
+	err := db.Get(
+		session,
+		"select * from sessions where id=$1",
+		session_id,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.Redirect("/login")
+		}
+		return c.Redirect("/error")
+	}
+	payload := new(models.GCPPayload)
+  err = c.BodyParser(payload)
+  if err != nil {
+    return c.Render("settings", fiber.Map{
+      "Location":   "Settings",
+      "GCP_Config": payload,
+      "BadRequest": true,
+    })
+  }
+	file, err := c.FormFile("gcp_service_key")
+	if err != nil {
+		println(err.Error())
+		return c.Render("settings", fiber.Map{
+			"Location":   "Settings",
+			"GCP_Config": payload,
+			"BadRequest": true,
+		})
+	}
+  println(file.Filename)
+	return c.Render("settings", fiber.Map{
+		"Location":   "Settings",
+		"GCP_Config": payload,
+	})
 }

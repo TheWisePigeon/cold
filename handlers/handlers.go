@@ -154,9 +154,9 @@ func GotoSettingsPage(db *sqlx.DB, c *fiber.Ctx) error {
 		}
 	}
 	return c.Render("settings", fiber.Map{
-		"Location":   "Settings",
-		"GCP_Config": gcp_config,
-    "EmptyConfig": err==sql.ErrNoRows,
+		"Location":    "Settings",
+		"GCP_Config":  gcp_config,
+		"EmptyConfig": err == sql.ErrNoRows,
 	}, "layout")
 }
 
@@ -183,25 +183,30 @@ func SaveGCPSettings(db *sqlx.DB, c *fiber.Ctx) error {
 	if err != nil {
 		return c.SendString(error_tag)
 	}
-  if payload.UploadedServiceAccountKey=="true" {
-    file, err := c.FormFile("gcp_service_key")
-    if !strings.HasSuffix(file.Filename, ".json") {
-      error_tag = "<p class='text-sm text-red-500'>The service account key must be a JSON file</p>"
-      return c.SendString(error_tag)
-    }
-    err = c.SaveFile(file, "./gcp_service_key.json")
-    if err != nil {
-      println(err.Error())
-      return c.SendString("Something went wrong. Please try again")
-    }
-  }
-	gcp_config := new(models.GCP_Config)
+	last_updated := ""
+	if payload.UploadedServiceAccountKey == "true" {
+		file, err := c.FormFile("gcp_service_key")
+		if !strings.HasSuffix(file.Filename, ".json") {
+			error_tag = "<p class='text-sm text-red-500'>The service account key must be a JSON file</p>"
+			return c.SendString(error_tag)
+		}
+		err = c.SaveFile(file, "./gcp_service_key.json")
+		if err != nil {
+			println(err.Error())
+			return c.SendString("Something went wrong. Please try again")
+		}
+		last_updated = time.Now().Format("Monday 2 2006, 15:04")
+		_, err = db.Exec(
+			"update gcp_configs set last_updated_service_account=$1 where id=1",
+			last_updated,
+		)
+	}
 	//Because only one GC Storage setting is supported at the moment
+	gcp_config := new(models.GCP_Config)
 	gcp_config.Id = 1
 	gcp_config.BucketName = payload.BucketName
 	gcp_config.ProjectId = payload.ProjectId
 	gcp_config.ServiceAccountKey = "./gcp_service_key.json"
-  gcp_config.LastUpdatedServiceAccount = time.Now().Format("Monday 2 2006, 15:04")
 	_, err = db.NamedExec(
 		`
     insert or replace into gcp_configs(id, bucket_name, project_id, service_account_key, last_updated_service_account) 

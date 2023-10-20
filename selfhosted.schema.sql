@@ -46,5 +46,5 @@ create table if not exists gcp_configs(
   service_account_key text not null,
   project_id text not null,
   bucket_name text not null,
-  last_updated_service_account text not null
+  last_updated_service_account text 
 );

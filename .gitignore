@@ -27,3 +27,4 @@ dev.cold.db
 tmp/*
 # Test GCP service account key
 backer*
+gcp_service_key.json

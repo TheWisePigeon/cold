@@ -3,7 +3,6 @@ package handlers
 import (
 	"cold/models"
 	"database/sql"
-	"fmt"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -161,7 +160,6 @@ func GotoSettingsPage(db *sqlx.DB, c *fiber.Ctx) error {
 
 func SaveGCPSettings(db *sqlx.DB, c *fiber.Ctx) error {
 	error_tag := "<p class='text-sm text-red-500'>Something went wrong. Please try again</p>"
-	success_tag := "<p class='text-sm text-green-400'>Settings saved!</p>"
 	session_id := c.Cookies("session_id", "")
 	if session_id == "" {
 		return c.Redirect("login")
@@ -188,11 +186,27 @@ func SaveGCPSettings(db *sqlx.DB, c *fiber.Ctx) error {
 		error_tag = "<p class='text-sm text-red-500'>The service account key must be a JSON file</p>"
 		return c.SendString(error_tag)
 	}
-	target_dir := "./tmp"
-	err = c.SaveFile(file, fmt.Sprintf("%s/%s", target_dir, file.Filename))
+	err = c.SaveFile(file, "./gcp_service_key.json")
 	if err != nil {
 		println(err.Error())
 		return c.SendString("Something went wrong. Please try again")
 	}
-	return c.SendString(success_tag)
+	gcp_config := new(models.GCP_Config)
+	//Because only one GC Storage setting is supported at the moment
+	gcp_config.Id = 1
+	gcp_config.BucketName = payload.BucketName
+	gcp_config.ProjectId = payload.ProjectId
+	gcp_config.ServiceAccountKey = "./gcp_service_key.json"
+	_, err = db.NamedExec(
+		`
+    insert or replace into gcp_configs(id, bucket_name, project_id, service_account_key) 
+    values(:id, :bucket_name, :project_id, :service_account_key)
+    `,
+		gcp_config,
+	)
+	if err != nil {
+		println(err.Error())
+		return c.SendString(error_tag)
+	}
+	return c.Redirect("/settings")
 }

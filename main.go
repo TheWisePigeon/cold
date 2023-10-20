@@ -1,38 +1,12 @@
 package main
 
 import (
-	"database/sql"
-
+	"cold/handlers"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/html/v2"
-	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
-	"golang.org/x/crypto/bcrypt"
 )
-
-type LoginPayload struct {
-	Username string `form:"username"`
-	Password string `form:"password"`
-}
-
-type User struct {
-	Username           string `json:"username" db:"username"`
-	Password           string `json:"password" db:"password"`
-	FirstTimeLoggingIn bool   `db:"first_time_logging_in"`
-}
-
-type Session struct {
-	Id   string `json:"id" db:"id"`
-	User string `json:"user" db:"user"`
-}
-
-type GCP_Config struct {
-	Id                int    `json:"id" db:"id"`
-	ServiceAccountKey string `json:"service_account_key" db:"service_account_key"`
-	ProjectId         string `json:"project_id" db:"project_id"`
-	BucketName        string `json:"bucket_name" db:"bucket_name"`
-}
 
 func main() {
 	db, err := sqlx.Connect("sqlite3", "./cold.db")
@@ -46,155 +20,31 @@ func main() {
 	})
 
 	app.Get("/login", func(c *fiber.Ctx) error {
-		return c.Render("login", fiber.Map{})
+    return handlers.GetLoginPage(db, c)
 	})
 
-	app.Post("/api/login", func(c *fiber.Ctx) error {
-		payload := new(LoginPayload)
-		err := c.BodyParser(payload)
-		if err != nil {
-			return c.Render("login", fiber.Map{
-				"BadRequest": true,
-			})
-		}
-		user := new(User)
-		err = db.Get(
-			user,
-			"select * from users where username=$1",
-			payload.Username,
-		)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				return c.Render("login", fiber.Map{
-					"BadRequest": true,
-				})
-			}
-			return c.Render("login", fiber.Map{
-				"InternalError": true,
-			})
-		}
-		err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(payload.Password))
-		if err != nil {
-			return c.Render("login", fiber.Map{
-				"BadRequest": true,
-			})
-		}
-		session_id := uuid.NewString()
-		_, err = db.Exec(
-			"insert into sessions(id, user) values($1, $2)",
-			session_id,
-			user.Username,
-		)
-		if err != nil {
-			return c.Render("login", fiber.Map{
-				"InternalError": true,
-			})
-		}
-		cookie := new(fiber.Cookie)
-		cookie.Name = "session_id"
-		cookie.Value = session_id
-		cookie.Path = "/"
-		c.Cookie(cookie)
-		c.Set("hx-redirect", "/home")
-		return c.Render("/login", fiber.Map{})
-	})
+  app.Get("/logout", func(c *fiber.Ctx) error {
+    return handlers.Logout(db, c)
+  })
 
-	app.Get("/logout", func(c *fiber.Ctx) error {
-		session_id := c.Cookies("session_id", "")
-		if session_id == "" {
-			return c.Redirect("login")
-		}
-		session := new(Session)
-		err := db.Get(
-			session,
-			"select * from sessions where id=$1",
-			session_id,
-		)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				return c.Redirect("/login")
-			}
-			return c.Redirect("/error")
-		}
-		_, err = db.Exec("delete from sessions where id=$1", session.Id)
-		if err != nil {
-			return c.Redirect("/error")
-		}
-		return c.Redirect("/login")
-	})
-
-	app.Get("/home", func(c *fiber.Ctx) error {
-		session_id := c.Cookies("session_id", "")
-		if session_id == "" {
-			return c.Redirect("login")
-		}
-		session := new(Session)
-		err := db.Get(
-			session,
-			"select * from sessions where id=$1",
-			session_id,
-		)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				return c.Redirect("/login")
-			}
-			return c.Redirect("/error")
-		}
-		//As only GC Storage is supported at the moment
-		gcp_config := new(GCP_Config)
-		err = db.Get(
-			gcp_config,
-			"select * from gcp_configs where id=1",
-		)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				return c.Redirect("/settings")
-			}
-			return c.Redirect("/error")
-		}
-		return c.Render("home", fiber.Map{
-			"Username": session.User,
-			"Location": "Home",
-		}, "layout")
-	})
+  app.Get("/home", func(c *fiber.Ctx) error {
+    return handlers.GotoHomePage(db, c)
+  })
 
 	app.Get("/settings", func(c *fiber.Ctx) error {
-		session_id := c.Cookies("session_id", "")
-		if session_id == "" {
-			return c.Redirect("login")
-		}
-		session := new(Session)
-		err := db.Get(
-			session,
-			"select * from sessions where id=$1",
-			session_id,
-		)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				return c.Redirect("/login")
-			}
-			return c.Redirect("/error")
-		}
-		//Fetch GCP_config
-		gcp_config := new(GCP_Config)
-		err = db.Get(
-			gcp_config,
-			"select * from gcp_configs where id=1",
-		)
-		if err != nil {
-			if err != sql.ErrNoRows {
-				return c.Redirect("/error")
-			}
-		}
-		return c.Render("settings", fiber.Map{
-			"Location": "Settings",
-      "GCP_Config": gcp_config,
-		}, "layout")
+    return handlers.GotoSettingsPage(db, c)
 	})
 
-  app.Get("/error", func(c *fiber.Ctx) error {
-    return c.Render("error", fiber.Map{})
+
+  app.Route("/api", func(router fiber.Router) {
+    router.Post("/login", func(c *fiber.Ctx) error {
+      return handlers.Login(db, c)
+    })
   })
+
+	app.Get("/error", func(c *fiber.Ctx) error {
+		return c.Render("error", fiber.Map{})
+	})
 
 	println("Server launched")
 	err = app.Listen(":8080")

@@ -146,7 +146,7 @@ func main() {
 			return c.Redirect("/error")
 		}
     if current_user.FirstTimeLoggingIn {
-      c.Redirect("/config")
+      c.Redirect("/settings")
     }
 		return c.Render("home", fiber.Map{
 			"Username": session.User,
@@ -154,7 +154,7 @@ func main() {
 		}, "layout")
 	})
 
-  app.Get("/config", func(c *fiber.Ctx) error {
+  app.Get("/settings", func(c *fiber.Ctx) error {
 		session_id := c.Cookies("session_id", "")
 		if session_id == "" {
 			return c.Redirect("login")
@@ -171,8 +171,8 @@ func main() {
 			}
 			return c.Redirect("/error")
 		}
-    return c.Render("config", fiber.Map{
-      "Location":"Configuration",
+    return c.Render("settings", fiber.Map{
+      "Location":"Settings",
     }, "layout")
   })
 

@@ -21,6 +21,7 @@ type GCP_Config struct {
 	ServiceAccountKey string `json:"service_account_key" db:"service_account_key"`
 	ProjectId         string `json:"project_id" db:"project_id"`
 	BucketName        string `json:"bucket_name" db:"bucket_name"`
+  LastUpdatedServiceAccount string `json:"last_updated_service_account" db:"last_updated_service_account"`
 }
 
 type GCPPayload struct {

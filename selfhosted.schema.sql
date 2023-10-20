@@ -45,5 +45,6 @@ create table if not exists gcp_configs(
   id integer primary key autoincrement ,
   service_account_key text not null,
   project_id text not null,
-  bucket_name text not null
+  bucket_name text not null,
+  last_updated_service_account text not null
 );

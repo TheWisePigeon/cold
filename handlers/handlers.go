@@ -4,6 +4,7 @@ import (
 	"cold/models"
 	"database/sql"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -200,10 +201,11 @@ func SaveGCPSettings(db *sqlx.DB, c *fiber.Ctx) error {
 	gcp_config.BucketName = payload.BucketName
 	gcp_config.ProjectId = payload.ProjectId
 	gcp_config.ServiceAccountKey = "./gcp_service_key.json"
+  gcp_config.LastUpdatedServiceAccount = time.Now().Format("Monday 2 2006, 15:04")
 	_, err = db.NamedExec(
 		`
-    insert or replace into gcp_configs(id, bucket_name, project_id, service_account_key) 
-    values(:id, :bucket_name, :project_id, :service_account_key)
+    insert or replace into gcp_configs(id, bucket_name, project_id, service_account_key, last_updated_service_account) 
+    values(:id, :bucket_name, :project_id, :service_account_key, :last_updated_service_account)
     `,
 		gcp_config,
 	)

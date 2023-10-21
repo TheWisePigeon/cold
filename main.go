@@ -2,16 +2,22 @@ package main
 
 import (
 	"cold/handlers"
+	"embed"
+	"net/http"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/html/v2"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 )
 
+//go:embed views/*
+var viewsfs embed.FS
+
 func main() {
-	db, err := sqlx.Connect("sqlite3", "/root/cold.db")
+	db, err := sqlx.Connect("sqlite3", "./cold.db")
 	_ = db
-	engine := html.New("/root/views", ".html")
+	engine := html.NewFileSystem(http.FS(viewsfs), ".html")
 	if err != nil {
 		panic(err)
 	}

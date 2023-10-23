@@ -2,8 +2,8 @@ package main
 
 import (
 	"cold/handlers"
-	"embed"
-	"net/http"
+	// "embed"
+	// "net/http"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/html/v2"
@@ -11,13 +11,14 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-//go:embed views/*
-var viewsfs embed.FS
+// //go:embed views/*
+// var viewsfs embed.FS
 
 func main() {
 	db, err := sqlx.Connect("sqlite3", "./cold.db")
 	_ = db
-	engine := html.NewFileSystem(http.FS(viewsfs), ".html")
+	// engine := html.NewFileSystem(http.FS(viewsfs), ".html")
+  engine :=html.New("views", ".html")
 	if err != nil {
 		panic(err)
 	}
@@ -36,6 +37,10 @@ func main() {
 	app.Get("/home", func(c *fiber.Ctx) error {
 		return handlers.GotoHomePage(db, c)
 	})
+
+  app.Get("/schedules", func(c *fiber.Ctx) error {
+    return handlers.GotoSchedulesPage(db, c)
+  })
 
 	app.Get("/settings", func(c *fiber.Ctx) error {
 		return handlers.GotoSettingsPage(db, c)

@@ -253,3 +253,10 @@ func SaveGCPSettings(db *sqlx.DB, c *fiber.Ctx) error {
 	}
 	return c.Redirect("/settings")
 }
+
+func GotoSchedulesPage(db *sqlx.DB, c *fiber.Ctx) error {
+  return c.Render("schedules", fiber.Map{
+		"Username": "test",
+		"Location": "Schedules",
+  },"layout")
+}

@@ -13,23 +13,47 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	if integration != "supabase" {
-		w.WriteHeader(http.StatusBadRequest)
+	if integration == "supabase" {
+		var payload = new(struct {
+			Username            string `json:"username"`
+			Password            string `json:"password"`
+			SupabaseCredentials struct {
+				ProjectUrl string `json:"project_url"`
+				BucketName string `json:"bucket_name"`
+				ApiKey     string `json:"api_key"`
+				Folder     string `json:"folder"`
+			} `json:"creds"`
+		})
+		err := json.NewDecoder(r.Body).Decode(payload)
+		if err != nil {
+			pkg.Logger.Error(err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		ok, status_code := pkg.CheckSupabaseCreds(
+			payload.SupabaseCredentials.ProjectUrl,
+			payload.SupabaseCredentials.BucketName,
+			payload.SupabaseCredentials.ApiKey,
+		)
+		if !ok {
+			switch status_code {
+			case 400:
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			case 404:
+				w.WriteHeader(http.StatusNotFound)
+				return
+			case 500:
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			default:
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+		}
+		w.WriteHeader(http.StatusOK)
 		return
 	}
-	var payload = new(struct {
-		Username               string            `json:"username"`
-		Password               string            `json:"password"`
-		IntegrationCredentials map[string]string `json:"integration_creds"`
-	})
-	err := json.NewDecoder(r.Body).Decode(payload)
-	if err != nil {
-    pkg.Logger.Error(err)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
-	fmt.Printf("%#v\n", payload)
+	w.WriteHeader(http.StatusBadRequest)
 	return
-
 }

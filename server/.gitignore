@@ -25,3 +25,5 @@ cold
 main
 # Temp folders
 tmp
+# Bruno files
+.bruno

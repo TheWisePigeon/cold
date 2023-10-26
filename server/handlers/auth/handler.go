@@ -1,10 +1,14 @@
 package auth
 
 import (
+	"cold/models"
 	"cold/pkg"
+	"cold/repositories"
+	"database/sql"
 	"encoding/json"
-	"fmt"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
 func Register(w http.ResponseWriter, r *http.Request) {
@@ -51,7 +55,32 @@ func Register(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		w.WriteHeader(http.StatusOK)
+		err = repositories.GetUserByName(payload.Username)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				new_userid := uuid.NewString()
+				err, hashed_pwd := pkg.Hash(payload.Password)
+				if err != nil {
+					pkg.Logger.Error(err)
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
+				err = repositories.InsertUser(&models.User{
+					Id:       new_userid,
+					Username: payload.Username,
+					Password: hashed_pwd,
+				})
+				if err != nil {
+					pkg.Logger.Error(err)
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
+			}
+			pkg.Logger.Error(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusConflict)
 		return
 	}
 	w.WriteHeader(http.StatusBadRequest)

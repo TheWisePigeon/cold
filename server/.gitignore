@@ -27,3 +27,6 @@ main
 tmp
 # Bruno files
 .bruno
+
+# Dev resources
+.dev*

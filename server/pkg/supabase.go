@@ -14,7 +14,6 @@ func CheckSupabaseCreds(project_url, bucket_name, api_key string) (ok bool, stat
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", api_key))
 	client := &http.Client{}
 	response, err := client.Do(req)
-  println(response.StatusCode)
 	if err != nil {
 		Logger.Error(err)
 		return false, 500

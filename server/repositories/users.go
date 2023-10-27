@@ -18,7 +18,7 @@ func InsertUser(user *models.User) error {
 	return err
 }
 
-func RegisterNewUser(user *models.User, integration *models.Integration, user_integration *models.UserIntegration, credentials *[]models.Credential) error {
+func RegisterNewUser(user *models.User, integration *models.Integration, user_integration *models.UserIntegration, credentials []models.Credential) error {
 	tx, err := DB.Beginx()
 	if err != nil {
 		return err
@@ -35,7 +35,7 @@ func RegisterNewUser(user *models.User, integration *models.Integration, user_in
       insert into integration_credentials(id, integration, key, value)
       values(:id, :integration, :key, :value)
     `,
-		&credentials,
+		credentials,
 	)
 	err = tx.Commit()
 	return err

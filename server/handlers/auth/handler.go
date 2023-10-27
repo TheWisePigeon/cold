@@ -107,7 +107,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 						Integration: integration_id,
 						Owner:       new_userid,
 					},
-					&supabase_creds,
+					supabase_creds,
 				)
 				if err != nil {
 					pkg.Logger.Error(err)

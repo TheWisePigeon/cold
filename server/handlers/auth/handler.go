@@ -65,16 +65,71 @@ func Register(w http.ResponseWriter, r *http.Request) {
 					w.WriteHeader(http.StatusInternalServerError)
 					return
 				}
-				err = repositories.InsertUser(&models.User{
-					Id:       new_userid,
-					Username: payload.Username,
-					Password: hashed_pwd,
-				})
+				integration_id := uuid.NewString()
+				supabase_creds := []models.Credential{
+					{
+						Id:          uuid.NewString(),
+						Integration: integration_id,
+						Key:         "project_url",
+						Value:       payload.SupabaseCredentials.ProjectUrl,
+					},
+					{
+						Id:          uuid.NewString(),
+						Integration: integration_id,
+						Key:         "api_key",
+						Value:       payload.SupabaseCredentials.ApiKey,
+					},
+					{
+						Id:          uuid.NewString(),
+						Integration: integration_id,
+						Key:         "bucket_name",
+						Value:       payload.SupabaseCredentials.BucketName,
+					},
+					{
+						Id:          uuid.NewString(),
+						Integration: integration_id,
+						Key:         "folder",
+						Value:       payload.SupabaseCredentials.Folder,
+					},
+				}
+				err = repositories.RegisterNewUser(
+					&models.User{
+						Id:       new_userid,
+						Username: payload.Username,
+						Password: hashed_pwd,
+					},
+					&models.Integration{
+						Id:   integration_id,
+						Name: "supabase",
+					},
+					&models.UserIntegration{
+						Id:          uuid.NewString(),
+						Integration: integration_id,
+						Owner:       new_userid,
+					},
+					&supabase_creds,
+				)
 				if err != nil {
 					pkg.Logger.Error(err)
 					w.WriteHeader(http.StatusInternalServerError)
 					return
 				}
+				new_sessionid := uuid.NewString()
+				err = repositories.CreateSession(new_sessionid, new_userid)
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					w.Header().Add("redirect-to", "login")
+					return
+				}
+				cookie := http.Cookie{
+					Name:     "session_id",
+					Value:    new_sessionid,
+					HttpOnly: true,
+					Path:     "/",
+				}
+				http.SetCookie(w, &cookie)
+				w.WriteHeader(http.StatusCreated)
+				return
 			}
 			pkg.Logger.Error(err)
 			w.WriteHeader(http.StatusInternalServerError)

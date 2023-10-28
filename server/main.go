@@ -15,7 +15,7 @@ import (
 
 func main() {
 	godotenv.Load() // Dev only
-  pkg.InitLogger()
+	pkg.InitLogger()
 	err := repositories.ConnectToDB()
 	if err != nil {
 		pkg.Logger.Fatal(err)
@@ -31,5 +31,4 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
 }

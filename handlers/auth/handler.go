@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
+  "html/template"
 )
 
 func Register(w http.ResponseWriter, r *http.Request) {
@@ -140,4 +141,9 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusBadRequest)
 	return
+}
+
+func GetAuthPage(w http.ResponseWriter, r *http.Request){
+  t, _ := template.New("auth.gohtml").ParseFS(pkg.Views, "views/auth.gohtml")
+  t.Execute(w, nil)
 }

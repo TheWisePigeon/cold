@@ -9,6 +9,6 @@ var DB *sqlx.DB
 var err error
 
 func ConnectToDB() error {
-  DB, err = sqlx.Connect("sqlite3", "/home/thewisepigeon/code/cold/server/.dev.cold.db")
+  DB, err = sqlx.Connect("sqlite3", "/home/thewisepigeon/code/cold/.dev.cold.db")
   return err
 }

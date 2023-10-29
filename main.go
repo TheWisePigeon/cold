@@ -7,15 +7,20 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-
+  "embed"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
 )
 
+
+//go:embed views/*
+var views embed.FS
+
 func main() {
 	godotenv.Load() // Dev only
 	pkg.InitLogger()
+  pkg.Views = views
 	err := repositories.ConnectToDB()
 	if err != nil {
 		pkg.Logger.Fatal(err)

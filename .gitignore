@@ -30,3 +30,6 @@ tmp
 
 # Dev resources
 .dev*
+# css stuff
+static
+tailwind.config.js

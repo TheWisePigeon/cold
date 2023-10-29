@@ -17,6 +17,9 @@ import (
 //go:embed views/*
 var views embed.FS
 
+//go:embed static/output.css
+var static embed.FS
+
 func main() {
 	godotenv.Load() // Dev only
 	pkg.InitLogger()
@@ -29,6 +32,18 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
+
+  r.Get("/static/styles.css", func(w http.ResponseWriter, r *http.Request) {
+    css, err := static.ReadFile("static/output.css")
+    if err!= nil {
+      pkg.Logger.Error(err)
+      w.WriteHeader(http.StatusInternalServerError)
+      return
+    }
+    w.Header().Set("Content-Type", "text/css")
+    w.Write(css)
+    return
+  })
 	handlers.RegisterHandlers(r)
 
 	fmt.Println("Server launched")

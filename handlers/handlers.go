@@ -10,5 +10,5 @@ func RegisterHandlers(r *chi.Mux) {
 		r.Post("/register", auth.Register)
 	})
 
-  r.Get("/", auth.GetAuthPage)
+  r.Get("/register", auth.GetRegistrationPage)
 }

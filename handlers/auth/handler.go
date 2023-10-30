@@ -143,7 +143,11 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func GetAuthPage(w http.ResponseWriter, r *http.Request){
-  t, _ := template.New("auth.gohtml").ParseFS(pkg.Views, "views/auth.gohtml")
+func GetRegistrationPage(w http.ResponseWriter, r *http.Request){
+  t, _ := template.New("register.gohtml").ParseFS(pkg.Views, "views/register.gohtml")
   t.Execute(w, nil)
+}
+
+func HandleAuth(w http.ResponseWriter, r *http.Request){
+
 }
